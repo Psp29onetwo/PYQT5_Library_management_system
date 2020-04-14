@@ -22,12 +22,34 @@ class MainApp(QMainWindow, ui):
 
     def Handle_Buttons(self):
         self.pushButton_5.clicked.connect(self.Show_Themes)
+        self.pushButton_21.clicked.connect(self.Hiding_Themes)
+        self.pushButton.clicked.connect(self.Open_day_to_day_tabs)
+        self.pushButton_2.clicked.connect(self.Open_books_tab)
+        self.pushButton_3.clicked.connect(self.Open_users_tab)
+        self.pushButton_4.clicked.connect(self.Open_settings_tab)
 
     def Show_Themes(self):
         self.groupBox_3.show()
 
     def Hiding_Themes(self):
         self.groupBox_3.hide()
+
+
+    #Opening Tabs
+
+
+    def Open_day_to_day_tabs(self):
+        self.tabWidget.setCurrentIndex(0)
+
+    def Open_books_tab(self):
+        self.tabWidget.setCurrentIndex(1)
+
+
+    def Open_users_tab(self):
+        self.tabWidget.setCurrentIndex(2)
+
+    def Open_settings_tab(self):
+        self.tabWidget.setCurrentIndex(3)
 
 
 
