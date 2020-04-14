@@ -19,6 +19,7 @@ class MainApp(QMainWindow, ui):
 
     def Handle_UI_Changes(self):
         self.Hiding_Themes()
+        self.tabWidget.tabBar().setVisible(False)
 
     def Handle_Buttons(self):
         self.pushButton_5.clicked.connect(self.Show_Themes)
@@ -50,6 +51,48 @@ class MainApp(QMainWindow, ui):
 
     def Open_settings_tab(self):
         self.tabWidget.setCurrentIndex(3)
+
+
+    #Books @ DB
+
+
+    def Add_new_books(self):
+        pass
+
+    def Search_books(self):
+        pass
+
+    def Edit_books(self):
+        pass
+
+    def Delete_books(self):
+        pass
+
+
+    # Users @ DB
+
+
+    def Add_new_user(self):
+        pass
+
+    def Login(self):
+        pass
+
+    def Edit_users(self):
+        pass
+
+
+    #Settings @ DB
+
+    def Add_category(self):
+        pass
+
+    def Add_author(self):
+        pass
+
+    def Add_publisher(self):
+        pass
+
 
 
 
