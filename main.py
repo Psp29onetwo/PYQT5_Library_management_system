@@ -119,6 +119,28 @@ class MainApp(QMainWindow, ui):
 
         self.db.commit()
         self.statusBar().showMessage('New Category Added')
+        #Deleting box text after button clicking
+        self.lineEdit_19.setText('')
+        # Updating categories after button clicked i.e. After adding item
+        self.Show_category()
+
+
+    def Show_category(self):
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+        self.cur.execute(''' SELECT category_name FROM category ''')
+        author_data = self.cur.fetchall()
+        print(author_data)
+        if author_data:
+            self.tableWidget_2.setRowCount(0)
+            self.tableWidget_2.insertRow(0)
+            for row, form in enumerate(author_data):
+                for column, item in enumerate(form):
+                    self.tableWidget_2.setItem(row, column, QTableWidgetItem(str(item)))
+                    column +=1
+
+                row_position = self.tableWidget_2.rowCount()
+                self.tableWidget_2.insertRow(row_position)
 
 
     def Add_author(self):
@@ -132,7 +154,13 @@ class MainApp(QMainWindow, ui):
                 ''', (author_name,))
 
         self.db.commit()
+        self.lineEdit_20.setText('')
         self.statusBar().showMessage('New Author Added')
+
+
+    def Show_author(self):
+        pass
+
 
     def Add_publisher(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
@@ -145,9 +173,11 @@ class MainApp(QMainWindow, ui):
                         ''', (publisher_name,))
 
         self.db.commit()
+        self.lineEdit_21.setText('')
         self.statusBar().showMessage('New Publisher Added')
 
-
+    def Show_publisher(self):
+        pass
 
 
 
