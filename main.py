@@ -52,6 +52,7 @@ class MainApp(QMainWindow, ui):
         self.pushButton_14.clicked.connect(self.Add_category)
         self.pushButton_15.clicked.connect(self.Add_author)
         self.pushButton_16.clicked.connect(self.Add_publisher)
+        self.pushButton_9.clicked.connect(self.Search_book)
 
 
     def Show_Themes(self):
@@ -112,7 +113,23 @@ class MainApp(QMainWindow, ui):
 
 
     def Search_book(self):
-        pass
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        book_title = self.lineEdit_7.text()
+
+        sql = ''' SELECT * FROM book WHERE book_name = %s '''
+        self.cur.execute(sql, [(book_title)])
+
+        data = self.cur.fetchone()
+        self.lineEdit_7.setText(data[1])
+        self.textEdit.setPlainText(data[2])
+        self.lineEdit_5.setText(data[3])
+        self.comboBox_8.setCurrentIndex(data[4])
+        self.comboBox_6.setCurrentIndex(data[5])
+        self.comboBox_7.setCurrentIndex(data[6])
+        self.lineEdit_6.setText(str(data[7]))
+
 
     def Edit_book(self):
         pass
@@ -250,6 +267,7 @@ class MainApp(QMainWindow, ui):
         self.comboBox_3.clear()
         for category in data:
             self.comboBox_3.addItem(category[0])
+            self.comboBox_8.addItem(category[0])
 
 
 
@@ -265,6 +283,7 @@ class MainApp(QMainWindow, ui):
         self.comboBox_4.clear()
         for author in data:
             self.comboBox_4.addItem(author[0])
+            self.comboBox_6.addItem(author[0])
 
     def Show_publisher_combobox(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
@@ -276,6 +295,7 @@ class MainApp(QMainWindow, ui):
         self.comboBox_5.clear()
         for publisher in data:
             self.comboBox_5.addItem(publisher[0])
+            self.comboBox_7.addItem(publisher[0])
 
 
 def main():
