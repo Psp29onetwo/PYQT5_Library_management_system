@@ -17,6 +17,17 @@ class MainApp(QMainWindow, ui):
         self.Handle_UI_Changes()
         self.Handle_Buttons()
 
+        #DATABASE
+        self.Show_author()
+        self.Show_publisher()
+        self.Show_category()
+
+        #DATABASE COMBOBOX
+        self.Show_category_combobox()
+        self.Show_author_combobox()
+        self.Show_publisher_combobox()
+
+
     def Handle_UI_Changes(self):
         self.Hiding_Themes()
         self.tabWidget.tabBar().setVisible(False)
@@ -75,11 +86,29 @@ class MainApp(QMainWindow, ui):
         self.cur = self.db.cursor()
 
         book_title = self.lineEdit_2.text()
+        book_description = self.textEdit_2.toPlainText()
         book_code = self.lineEdit_3.text()
-        book_category = self.comboBox_3.CurrentText()
-        book_author = self.comboBox_4.CurrentText()
-        book_publisher = self.comboBox_5.CurrentText()
+        book_category = self.comboBox_3.currentIndex()
+        book_author = self.comboBox_4.currentIndex()
+        book_publisher = self.comboBox_5.currentIndex()
         book_price = self.lineEdit_4.text()
+
+        self.cur.execute(''' INSERT INTO book(book_name, book_description, book_code, book_category, book_author, book_publisher, book_price)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ''', (book_title, book_description, book_code, book_category, book_author, book_publisher, book_price))
+
+        self.db.commit()
+        self.statusBar().showMessage("New Book Added")
+
+        self.lineEdit_2.setText('')
+        self.lineEdit_3.setText('')
+        self.lineEdit_4.setText('')
+        self.textEdit_2.setPlainText('')
+        self.comboBox_3.setCurrentIndex(0)
+        self.comboBox_4.setCurrentIndex(0)
+        self.comboBox_5.setCurrentIndex(0)
+
+
 
 
     def Search_book(self):
@@ -123,18 +152,18 @@ class MainApp(QMainWindow, ui):
         self.lineEdit_19.setText('')
         # Updating categories after button clicked i.e. After adding item
         self.Show_category()
+        self.Show_category_combobox()
 
 
     def Show_category(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
         self.cur = self.db.cursor()
         self.cur.execute(''' SELECT category_name FROM category ''')
-        author_data = self.cur.fetchall()
-        print(author_data)
-        if author_data:
+        category_data = self.cur.fetchall()
+        if category_data:
             self.tableWidget_2.setRowCount(0)
             self.tableWidget_2.insertRow(0)
-            for row, form in enumerate(author_data):
+            for row, form in enumerate(category_data):
                 for column, item in enumerate(form):
                     self.tableWidget_2.setItem(row, column, QTableWidgetItem(str(item)))
                     column +=1
@@ -156,10 +185,25 @@ class MainApp(QMainWindow, ui):
         self.db.commit()
         self.lineEdit_20.setText('')
         self.statusBar().showMessage('New Author Added')
+        self.Show_author()
+        self.Show_author_combobox()
 
 
     def Show_author(self):
-        pass
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+        self.cur.execute(''' SELECT author_name FROM authors ''')
+        author_data = self.cur.fetchall()
+        if author_data:
+            self.tableWidget_3.setRowCount(0)
+            self.tableWidget_3.insertRow(0)
+            for row, form in enumerate(author_data):
+                for column, item in enumerate(form):
+                    self.tableWidget_3.setItem(row, column, QTableWidgetItem(str(item)))
+                    column += 1
+
+                row_position = self.tableWidget_3.rowCount()
+                self.tableWidget_3.insertRow(row_position)
 
 
     def Add_publisher(self):
@@ -175,10 +219,63 @@ class MainApp(QMainWindow, ui):
         self.db.commit()
         self.lineEdit_21.setText('')
         self.statusBar().showMessage('New Publisher Added')
+        self.Show_publisher()
+        self.Show_publisher_combobox()
 
     def Show_publisher(self):
-        pass
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+        self.cur.execute(''' SELECT publisher_name FROM publisher ''')
+        publisher_data = self.cur.fetchall()
+        if publisher_data:
+            self.tableWidget_4.setRowCount(0)
+            self.tableWidget_4.insertRow(0)
+            for row, form in enumerate(publisher_data):
+                for column, item in enumerate(form):
+                    self.tableWidget_4.setItem(row, column, QTableWidgetItem(str(item)))
+                    column += 1
 
+                row_position = self.tableWidget_4.rowCount()
+                self.tableWidget_4.insertRow(row_position)
+
+    # COMBOBOX DATA
+
+    def Show_category_combobox(self):
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        self.cur.execute(''' SELECT category_name FROM category ''')
+        data = self.cur.fetchall()
+
+        self.comboBox_3.clear()
+        for category in data:
+            self.comboBox_3.addItem(category[0])
+
+
+
+
+
+    def Show_author_combobox(self):
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        self.cur.execute('''SELECT author_name FROM authors''')
+        data = self.cur.fetchall()
+
+        self.comboBox_4.clear()
+        for author in data:
+            self.comboBox_4.addItem(author[0])
+
+    def Show_publisher_combobox(self):
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        self.cur.execute('''SELECT publisher_name FROM publisher''')
+        data = self.cur.fetchall()
+
+        self.comboBox_5.clear()
+        for publisher in data:
+            self.comboBox_5.addItem(publisher[0])
 
 
 def main():
