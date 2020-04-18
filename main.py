@@ -46,6 +46,7 @@ class MainApp(QMainWindow, ui):
         self.pushButton_7.clicked.connect(self.Add_new_book)
         self.pushButton_9.clicked.connect(self.Search_book)
         self.pushButton_8.clicked.connect(self.Edit_book)
+        self.pushButton_10.clicked.connect(self.Delete_book)
 
 
         # DATABASE OPERATIONS
@@ -147,7 +148,7 @@ class MainApp(QMainWindow, ui):
         search_book_title = self.lineEdit_7.text()
 
         self.cur.execute('''
-        UPDATE book SET book_name=%s, book_description = %s, book_code = %s, book_category = %s, book_author = %s, book_publisher = %s, book_price = %s WHERE book_name = %s 
+        UPDATE book SET book_name = %s, book_description = %s, book_code = %s, book_category = %s, book_author = %s, book_publisher = %s, book_price = %s WHERE book_name = %s 
         ''', (book_title, book_description, book_code, book_category, book_author, book_publisher, book_price, search_book_title))
         self.db.commit()
         self.statusBar().showMessage("Book information updated successfully")
@@ -155,7 +156,17 @@ class MainApp(QMainWindow, ui):
 
 
     def Delete_book(self):
-        pass
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        book_title = self.lineEdit_7.text()
+
+        warning = QMessageBox.warning(self, 'Delete book', 'Are you sure you want to delete this book?', QMessageBox.Yes | QMessageBox.No)
+        if warning == QMessageBox.Yes:
+            sql = ''' DELETE FROM book WHERE book_name = %s '''
+            self.cur.execute(sql , [(book_title)])
+            self.db.commit()
+            self.statusBar().showMessage("Book deleted successfully")
 
 
     # Users @ DB
