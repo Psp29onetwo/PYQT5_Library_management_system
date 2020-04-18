@@ -44,7 +44,8 @@ class MainApp(QMainWindow, ui):
         self.pushButton_3.clicked.connect(self.Open_users_tab)
         self.pushButton_4.clicked.connect(self.Open_settings_tab)
         self.pushButton_7.clicked.connect(self.Add_new_book)
-
+        self.pushButton_9.clicked.connect(self.Search_book)
+        self.pushButton_8.clicked.connect(self.Edit_book)
 
 
         # DATABASE OPERATIONS
@@ -52,7 +53,7 @@ class MainApp(QMainWindow, ui):
         self.pushButton_14.clicked.connect(self.Add_category)
         self.pushButton_15.clicked.connect(self.Add_author)
         self.pushButton_16.clicked.connect(self.Add_publisher)
-        self.pushButton_9.clicked.connect(self.Search_book)
+
 
 
     def Show_Themes(self):
@@ -122,7 +123,7 @@ class MainApp(QMainWindow, ui):
         self.cur.execute(sql, [(book_title)])
 
         data = self.cur.fetchone()
-        self.lineEdit_7.setText(data[1])
+        self.lineEdit_8.setText(data[1])
         self.textEdit.setPlainText(data[2])
         self.lineEdit_5.setText(data[3])
         self.comboBox_8.setCurrentIndex(data[4])
@@ -132,7 +133,26 @@ class MainApp(QMainWindow, ui):
 
 
     def Edit_book(self):
-        pass
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        book_title = self.lineEdit_8.text()
+        book_description = self.textEdit.toPlainText()
+        book_code = self.lineEdit_5.text()
+        book_category = self.comboBox_8.currentIndex()
+        book_author = self.comboBox_6.currentIndex()
+        book_publisher = self.comboBox_7.currentIndex()
+        book_price = self.lineEdit_6.text()
+
+        search_book_title = self.lineEdit_7.text()
+
+        self.cur.execute('''
+        UPDATE book SET book_name=%s, book_description = %s, book_code = %s, book_category = %s, book_author = %s, book_publisher = %s, book_price = %s WHERE book_name = %s 
+        ''', (book_title, book_description, book_code, book_category, book_author, book_publisher, book_price, search_book_title))
+        self.db.commit()
+        self.statusBar().showMessage("Book information updated successfully")
+
+
 
     def Delete_book(self):
         pass
