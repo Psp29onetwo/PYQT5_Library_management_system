@@ -181,7 +181,6 @@ class MainApp(QMainWindow, ui):
     def Edit_users(self):
         pass
 
-
     #Settings @ DB
 
     def Add_category(self):
