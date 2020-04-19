@@ -59,6 +59,7 @@ class MainApp(QMainWindow, ui):
         ## ABOUT USERS
 
         self.pushButton_11.clicked.connect(self.Add_new_user)
+        self.pushButton_12.clicked.connect(self.Login)
 
 
 
@@ -205,6 +206,21 @@ class MainApp(QMainWindow, ui):
             self.label_30.setText("Password's doesn't match.")
 
     def Login(self):
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        username = self.lineEdit_14.text()
+        password = self.lineEdit_13.text()
+
+        sql = ''' SELECT user_name, user_password FROM users '''
+
+        self.cur.execute(sql)
+        data = self.cur.fetchall()
+        for row in data:
+            if username == row[0] and password == row[1]:
+                self.statusBar().showMessage("Valid user.")
+                self.groupBox_4.setEnabled(True)
+
 
 
     def Edit_users(self):
