@@ -51,9 +51,15 @@ class MainApp(QMainWindow, ui):
 
         # DATABASE OPERATIONS
 
+        ## ABOUT BOOKS
         self.pushButton_14.clicked.connect(self.Add_category)
         self.pushButton_15.clicked.connect(self.Add_author)
         self.pushButton_16.clicked.connect(self.Add_publisher)
+
+        ## ABOUT USERS
+
+        self.pushButton_11.clicked.connect(self.Add_new_user)
+
 
 
 
@@ -173,10 +179,33 @@ class MainApp(QMainWindow, ui):
 
 
     def Add_new_user(self):
-        pass
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        username = self.lineEdit_9.text()
+        email = self.lineEdit_10.text()
+        password = self.lineEdit_11.text()
+        password_confirmed = self.lineEdit_12.text()
+
+        if password == password_confirmed:
+            self.cur.execute('''
+            INSERT INTO users(user_name, user_email, user_password)
+            VALUES (%s, %s, %s)
+            ''', (username, email, password))
+            self.db.commit()
+            self.statusBar().showMessage("New User Added")
+
+            self.lineEdit_9.setText('')
+            self.lineEdit_10.setText('')
+            self.lineEdit_11.setText('')
+            self.lineEdit_12.setText('')
+
+
+        else:
+            self.label_30.setText("Password's doesn't match.")
 
     def Login(self):
-        pass
+
 
     def Edit_users(self):
         pass
