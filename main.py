@@ -212,14 +212,20 @@ class MainApp(QMainWindow, ui):
         username = self.lineEdit_14.text()
         password = self.lineEdit_13.text()
 
-        sql = ''' SELECT user_name, user_password FROM users '''
+        sql = ''' SELECT * FROM users '''
 
         self.cur.execute(sql)
         data = self.cur.fetchall()
         for row in data:
-            if username == row[0] and password == row[1]:
+            if username == row[1] and password == row[3]:
                 self.statusBar().showMessage("Valid user.")
                 self.groupBox_4.setEnabled(True)
+
+                self.lineEdit_18.setText(row[1])
+                self.lineEdit_17.setText(row[2])
+                self.lineEdit_15.setText(row[3])
+
+
 
 
 
