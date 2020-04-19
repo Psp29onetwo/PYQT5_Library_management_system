@@ -41,7 +41,8 @@ class MainApp(QMainWindow, ui):
         # Switching Tabs
         self.pushButton.clicked.connect(self.Open_day_to_day_tabs)
         self.pushButton_2.clicked.connect(self.Open_books_tab)
-        self.pushButton_3.clicked.connect(self.Open_users_tab)
+        self.pushButton_3.clicked.connect(self.Open_clients_tab)
+        self.pushButton_26.clicked.connect(self.Open_users_tab)
         self.pushButton_4.clicked.connect(self.Open_settings_tab)
         self.pushButton_7.clicked.connect(self.Add_new_book)
         self.pushButton_9.clicked.connect(self.Search_book)
@@ -62,7 +63,36 @@ class MainApp(QMainWindow, ui):
         self.pushButton_12.clicked.connect(self.Login)
         self.pushButton_13.clicked.connect(self.Edit_users)
 
+        ## THEMES_BUTTONS
 
+        self.pushButton_17.clicked.connect(self.Dark_orange_theme)
+        self.pushButton_18.clicked.connect(self.QDark_theme)
+        self.pushButton_19.clicked.connect(self.Dark_gray_theme)
+        self.pushButton_20.clicked.connect(self.Dark_blue_theme)
+
+
+
+    # Themes
+
+    def Dark_blue_theme(self):
+        styles = open('themes/darkblue.css', 'r')
+        styles = styles.read()
+        self.setStyleSheet(styles)
+
+    def Dark_gray_theme(self):
+        styles = open('themes/darkgray.css', 'r')
+        styles = styles.read()
+        self.setStyleSheet(styles)
+
+    def Dark_orange_theme(self):
+        styles = open('themes/darkorange.css', 'r')
+        styles = styles.read()
+        self.setStyleSheet(styles)
+
+    def QDark_theme(self):
+        styles = open('themes/qdark.css', 'r')
+        styles = styles.read()
+        self.setStyleSheet(styles)
 
 
     def Show_Themes(self):
@@ -81,12 +111,15 @@ class MainApp(QMainWindow, ui):
     def Open_books_tab(self):
         self.tabWidget.setCurrentIndex(1)
 
-
-    def Open_users_tab(self):
+    def Open_clients_tab(self):
         self.tabWidget.setCurrentIndex(2)
 
-    def Open_settings_tab(self):
+
+    def Open_users_tab(self):
         self.tabWidget.setCurrentIndex(3)
+
+    def Open_settings_tab(self):
+        self.tabWidget.setCurrentIndex(4)
 
 
     #Books @ DB
@@ -398,6 +431,9 @@ class MainApp(QMainWindow, ui):
         for publisher in data:
             self.comboBox_5.addItem(publisher[0])
             self.comboBox_7.addItem(publisher[0])
+
+
+
 
 
 def main():
