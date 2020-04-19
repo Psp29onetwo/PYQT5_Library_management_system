@@ -60,6 +60,7 @@ class MainApp(QMainWindow, ui):
 
         self.pushButton_11.clicked.connect(self.Add_new_user)
         self.pushButton_12.clicked.connect(self.Login)
+        self.pushButton_13.clicked.connect(self.Edit_users)
 
 
 
@@ -230,7 +231,27 @@ class MainApp(QMainWindow, ui):
 
 
     def Edit_users(self):
-        pass
+        username = self.lineEdit_18.text()
+        email = self.lineEdit_17.text()
+        password = self.lineEdit_15.text()
+        password_confirmed = self.lineEdit_16.text()
+
+        original_username = self.lineEdit_14.text()
+
+        if password == password_confirmed:
+            self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+            self.cur = self.db.cursor()
+
+            self.cur.execute('''
+            UPDATE users SET user_name = %s, user_email = %s, user_password = %s WHERE user_name = %s
+            ''', (username, email, password, original_username))
+
+            self.db.commit()
+            self.statusBar().showMessage("User data updated successfully.")
+
+        else:
+            self.label_31.setText("Password doesn't match.")
+
 
     #Settings @ DB
 
