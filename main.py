@@ -260,6 +260,7 @@ class MainApp(QMainWindow, ui):
         self.comboBox_5.setCurrentIndex(0)
 
 
+
     def Show_all_books(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
         self.cur = self.db.cursor()
