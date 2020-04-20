@@ -70,6 +70,57 @@ class MainApp(QMainWindow, ui):
         self.pushButton_19.clicked.connect(self.Dark_gray_theme)
         self.pushButton_20.clicked.connect(self.Dark_blue_theme)
 
+        ## CLIENTS OPERATIONS
+        self.pushButton_22.clicked.connect(self.Add_new_client)
+        self.pushButton_24.clicked.connect(self.Search_clients)
+
+    #Clients
+
+    def Add_new_client(self):
+        client_name = self.lineEdit_22.text()
+        client_email = self.lineEdit_23.text()
+        client_national_id = self.lineEdit_24.text()
+
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        self.cur.execute('''
+        INSERT INTO clients(client_name, client_email, client_nationalid) VALUES (%s, %s, %s)
+        ''', (client_name, client_email, client_national_id))
+        self.db.commit()
+        self.db.close()
+        self.statusBar().showMessage("New client added successfully.")
+
+
+    def Show_all_clients(self):
+        pass
+
+    def Search_clients(self):
+        client_national_id = self.lineEdit_25.text()
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        sql = ''' SELECT * FROM clients WHERE client_nationalid = %s '''
+
+        self.cur.execute(sql, [(client_national_id)])
+
+        data = self.cur.fetchone()
+
+        self.lineEdit_28.setText(data[1])
+        self.lineEdit_27.setText(data[2])
+        self.lineEdit_26.setText(data[3])
+
+
+    def Edit_clients(self):
+
+        # client_original_national_id = self.
+        pass
+
+
+    def Delete_clients(self):
+        pass
+
+
 
 
     # Themes
