@@ -294,7 +294,6 @@ class MainApp(QMainWindow, ui):
             self.tableWidget.insertRow(row_position)
 
 
-
     #Books @ DB
 
 
