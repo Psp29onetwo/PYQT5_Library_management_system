@@ -1,7 +1,7 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-import sys
+import sys, datetime
 import pymysql
 pymysql.install_as_MySQLdb()
 
@@ -31,6 +31,8 @@ class MainApp(QMainWindow, ui):
 
         self.Show_all_clients()
         self.Show_all_books()
+
+        self.Show_all_operations()
 
 
     def Handle_UI_Changes(self):
@@ -81,6 +83,10 @@ class MainApp(QMainWindow, ui):
         self.pushButton_23.clicked.connect(self.Edit_clients)
         self.pushButton_25.clicked.connect(self.Delete_clients)
 
+        ## DAY TO DAY OPERATION
+
+        self.pushButton_6.clicked.connect(self.Handle_day_to_day_operation)
+
     #Clients
 
     def Add_new_client(self):
@@ -109,6 +115,8 @@ class MainApp(QMainWindow, ui):
         self.cur.execute(''' SELECT client_name, client_email, client_nationalid FROM clients ''')
         data = self.cur.fetchall()
 
+        self.tableWidget_6.setRowCount(0)
+
         self.tableWidget_6.insertRow(0)
 
         for row, form in enumerate(data):
@@ -127,14 +135,25 @@ class MainApp(QMainWindow, ui):
         self.cur = self.db.cursor()
 
         sql = ''' SELECT * FROM clients WHERE client_nationalid = %s '''
+        try:
+            self.cur.execute(sql, [(client_national_id)])
 
-        self.cur.execute(sql, [(client_national_id)])
+        except (pymysql.Error, pymysql.Warning) as e:
+            self.statusBar().showMessage("Client not found.")
+            return None
 
-        data = self.cur.fetchone()
+        try:
+            data = self.cur.fetchone()
+            return data
+
+        except TypeError as e:
+            self.statusBar().showMessage("Client not found.")
+            return None
 
         self.lineEdit_28.setText(data[1])
         self.lineEdit_27.setText(data[2])
         self.lineEdit_26.setText(data[3])
+        # No need to update clients details in client search.
 
 
     def Edit_clients(self):
@@ -154,6 +173,7 @@ class MainApp(QMainWindow, ui):
         self.db.commit()
         self.db.close()
         self.statusBar().showMessage("Client details updated successfully.")
+        self.Show_all_clients()
 
 
 
@@ -173,6 +193,7 @@ class MainApp(QMainWindow, ui):
             self.db.commit()
             self.db.close()
             self.statusBar().showMessage("Client deleted successfully.")
+            self.Show_all_clients()
 
 
 
@@ -229,6 +250,51 @@ class MainApp(QMainWindow, ui):
         self.tabWidget.setCurrentIndex(4)
 
 
+    ## Day to day operation
+
+    def Handle_day_to_day_operation(self):
+        book_title = self.lineEdit.text()
+        client_name = self.lineEdit_29.text()
+        type = self.comboBox.currentText()
+        days_number = self.comboBox_2.currentIndex() + 1
+        today_date = datetime.date.today()
+        to_date = today_date + datetime.timedelta(days=days_number)
+
+        print(today_date)
+        print(to_date)
+
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        self.cur.execute('''
+                    INSERT INTO dayoperations(book_name, client, type , days , date , to_date )
+                    VALUES (%s , %s , %s, %s , %s , %s)
+                ''', (book_title, client_name, type, days_number, today_date, to_date))
+
+        self.db.commit()
+        self.statusBar().showMessage('New Operation Added')
+        self.Show_all_operations()
+
+
+    def Show_all_operations(self):
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        self.cur.execute(''' SELECT book_name, client, type, date, to_date FROM dayoperations''')
+        data = self.cur.fetchall()
+
+        self.tableWidget.setRowCount(0)
+        self.tableWidget.insertRow(0)
+        for row, form in enumerate(data):
+            for column, item in enumerate(form):
+                self.tableWidget.setItem(row, column, QTableWidgetItem(str(item)))
+                column += 1
+
+            row_position = self.tableWidget.rowCount()
+            self.tableWidget.insertRow(row_position)
+
+
+
     #Books @ DB
 
 
@@ -239,9 +305,9 @@ class MainApp(QMainWindow, ui):
         book_title = self.lineEdit_2.text()
         book_description = self.textEdit_2.toPlainText()
         book_code = self.lineEdit_3.text()
-        book_category = self.comboBox_3.currentIndex()
-        book_author = self.comboBox_4.currentIndex()
-        book_publisher = self.comboBox_5.currentIndex()
+        book_category = self.comboBox_3.currentText()
+        book_author = self.comboBox_4.currentText()
+        book_publisher = self.comboBox_5.currentText()
         book_price = self.lineEdit_4.text()
 
         self.cur.execute(''' INSERT INTO book(book_name, book_description, book_code, book_category, book_author, book_publisher, book_price)
@@ -255,9 +321,10 @@ class MainApp(QMainWindow, ui):
         self.lineEdit_3.setText('')
         self.lineEdit_4.setText('')
         self.textEdit_2.setPlainText('')
-        self.comboBox_3.setCurrentIndex(0)
-        self.comboBox_4.setCurrentIndex(0)
-        self.comboBox_5.setCurrentIndex(0)
+        self.comboBox_3.setCurrentText('')
+        self.comboBox_4.setCurrentText('')
+        self.comboBox_5.setCurrentText('')
+        self.Show_all_books()
 
 
 
@@ -267,6 +334,8 @@ class MainApp(QMainWindow, ui):
 
         self.cur.execute(''' SELECT book_code, book_name, book_description, book_category, book_author, book_publisher, book_price FROM book ''')
         data = self.cur.fetchall()
+
+        self.tableWidget_5.setRowCount(0)
 
         self.tableWidget_5.insertRow(0)
 
@@ -294,10 +363,11 @@ class MainApp(QMainWindow, ui):
         self.lineEdit_8.setText(data[1])
         self.textEdit.setPlainText(data[2])
         self.lineEdit_5.setText(data[3])
-        self.comboBox_8.setCurrentIndex(data[4])
-        self.comboBox_6.setCurrentIndex(data[5])
-        self.comboBox_7.setCurrentIndex(data[6])
+        self.comboBox_8.setCurrentText(data[4])
+        self.comboBox_6.setCurrentText(data[5])
+        self.comboBox_7.setCurrentText(data[6])
         self.lineEdit_6.setText(str(data[7]))
+        # no need to update book sin database in search
 
 
     def Edit_book(self):
@@ -307,9 +377,9 @@ class MainApp(QMainWindow, ui):
         book_title = self.lineEdit_8.text()
         book_description = self.textEdit.toPlainText()
         book_code = self.lineEdit_5.text()
-        book_category = self.comboBox_8.currentIndex()
-        book_author = self.comboBox_6.currentIndex()
-        book_publisher = self.comboBox_7.currentIndex()
+        book_category = self.comboBox_8.currentText()
+        book_author = self.comboBox_6.currentText()
+        book_publisher = self.comboBox_7.currentText()
         book_price = self.lineEdit_6.text()
 
         search_book_title = self.lineEdit_7.text()
@@ -319,6 +389,8 @@ class MainApp(QMainWindow, ui):
         ''', (book_title, book_description, book_code, book_category, book_author, book_publisher, book_price, search_book_title))
         self.db.commit()
         self.statusBar().showMessage("Book information updated successfully")
+        self.Show_all_books()
+
 
 
 
@@ -334,6 +406,8 @@ class MainApp(QMainWindow, ui):
             self.cur.execute(sql , [(book_title)])
             self.db.commit()
             self.statusBar().showMessage("Book deleted successfully")
+            self.Show_all_books()
+
 
 
     # Users @ DB
