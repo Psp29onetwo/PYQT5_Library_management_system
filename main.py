@@ -27,6 +27,11 @@ class MainApp(QMainWindow, ui):
         self.Show_author_combobox()
         self.Show_publisher_combobox()
 
+        #CLients INFORMATION
+
+        self.Show_all_clients()
+        self.Show_all_books()
+
 
     def Handle_UI_Changes(self):
         self.Hiding_Themes()
@@ -98,7 +103,23 @@ class MainApp(QMainWindow, ui):
 
 
     def Show_all_clients(self):
-        pass
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        self.cur.execute(''' SELECT client_name, client_email, client_nationalid FROM clients ''')
+        data = self.cur.fetchall()
+
+        self.tableWidget_6.insertRow(0)
+
+        for row, form in enumerate(data):
+            for column, item in enumerate(form):
+                self.tableWidget_6.setItem(row, column, QTableWidgetItem(str(item)))
+                column += 1
+
+                row_position = self.tableWidget_6.rowCount()
+                self.tableWidget_6.insertRow(row_position)
+
+        self.db.close()
 
     def Search_clients(self):
         client_national_id = self.lineEdit_25.text()
@@ -239,6 +260,24 @@ class MainApp(QMainWindow, ui):
         self.comboBox_5.setCurrentIndex(0)
 
 
+    def Show_all_books(self):
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        self.cur.execute(''' SELECT book_code, book_name, book_description, book_category, book_author, book_publisher, book_price FROM book ''')
+        data = self.cur.fetchall()
+
+        self.tableWidget_5.insertRow(0)
+
+        for row, form in enumerate(data):
+            for column, item in enumerate(form):
+                self.tableWidget_5.setItem(row, column, QTableWidgetItem(str(item)))
+                column += 1
+
+                row_position = self.tableWidget_5.rowCount()
+                self.tableWidget_5.insertRow(row_position)
+
+        self.db.close()
 
 
     def Search_book(self):
