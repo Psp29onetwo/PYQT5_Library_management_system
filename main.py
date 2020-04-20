@@ -73,6 +73,8 @@ class MainApp(QMainWindow, ui):
         ## CLIENTS OPERATIONS
         self.pushButton_22.clicked.connect(self.Add_new_client)
         self.pushButton_24.clicked.connect(self.Search_clients)
+        self.pushButton_23.clicked.connect(self.Edit_clients)
+        self.pushButton_25.clicked.connect(self.Delete_clients)
 
     #Clients
 
@@ -90,6 +92,9 @@ class MainApp(QMainWindow, ui):
         self.db.commit()
         self.db.close()
         self.statusBar().showMessage("New client added successfully.")
+        self.lineEdit_22.setText('')
+        self.lineEdit_23.setText('')
+        self.lineEdit_24.setText('')
 
 
     def Show_all_clients(self):
@@ -113,12 +118,42 @@ class MainApp(QMainWindow, ui):
 
     def Edit_clients(self):
 
-        # client_original_national_id = self.
-        pass
+        client_original_national_id = self.lineEdit_25.text()
+        client_name = self.lineEdit_28.text()
+        client_email = self.lineEdit_27.text()
+        client_national_id = self.lineEdit_26.text()
+
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        self.cur.execute(''' 
+        UPDATE clients SET client_name = %s, client_email = %s, client_nationalid = %s WHERE client_nationalid = %s
+        ''', (client_name, client_email, client_national_id, client_original_national_id))
+
+        self.db.commit()
+        self.db.close()
+        self.statusBar().showMessage("Client details updated successfully.")
+
 
 
     def Delete_clients(self):
-        pass
+        client_original_national_id = self.lineEdit_25.text()
+
+        warning_message = QMessageBox.warning(self, 'Delete client', 'Are you sure you want to delete this client?', QMessageBox.Yes | QMessageBox.No)
+
+        if warning_message == QMessageBox.Yes:
+
+            self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+            self.cur = self.db.cursor()
+
+            sql = ''' DELETE FROM clients WHERE client_nationalid = %s'''
+            self.cur.execute(sql, [(client_original_national_id)])
+
+            self.db.commit()
+            self.db.close()
+            self.statusBar().showMessage("Client deleted successfully.")
+
+
 
 
 
@@ -331,7 +366,7 @@ class MainApp(QMainWindow, ui):
             ''', (username, email, password, original_username))
 
             self.db.commit()
-            self.statusBar().showMessage("User data updated successfully.")
+            self.statusBar().showMessage("User details updated successfully.")
 
         else:
             self.label_31.setText("Password doesn't match.")
