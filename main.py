@@ -1,18 +1,21 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-import sys, datetime, xlwt
+import sys, datetime
 import pymysql
+# from xlwt import Workbook
+from xlrd import *
+from xlsxwriter import *
+
 pymysql.install_as_MySQLdb()
 
 from PyQt5.uic import loadUiType
 
-ui, _ =  loadUiType('library.ui')
-login,_ = loadUiType('login.ui')
+ui, _ = loadUiType('library.ui')
+login, _ = loadUiType('login.ui')
 
 
-
-class Login(QWidget , login):
+class Login(QWidget, login):
     def __init__(self):
         QWidget.__init__(self)
         self.setupUi(self)
@@ -32,7 +35,7 @@ class Login(QWidget , login):
 
         self.cur.execute(sql)
         data = self.cur.fetchall()
-        for row in data  :
+        for row in data:
             if username == row[1] and password == row[3]:
                 print('user match')
                 self.window2 = MainApp()
@@ -43,7 +46,6 @@ class Login(QWidget , login):
                 self.label.setText('Make sure you entered correct username and password.')
 
 
-
 class MainApp(QMainWindow, ui):
     def __init__(self):
         QMainWindow.__init__(self)
@@ -51,23 +53,22 @@ class MainApp(QMainWindow, ui):
         self.Handle_UI_Changes()
         self.Handle_Buttons()
 
-        #DATABASE
+        # DATABASE
         self.Show_author()
         self.Show_publisher()
         self.Show_category()
 
-        #DATABASE COMBOBOX
+        # DATABASE COMBOBOX
         self.Show_category_combobox()
         self.Show_author_combobox()
         self.Show_publisher_combobox()
 
-        #CLients INFORMATION
+        # CLients INFORMATION
 
         self.Show_all_clients()
         self.Show_all_books()
 
         self.Show_all_operations()
-
 
     def Handle_UI_Changes(self):
         self.Hiding_Themes()
@@ -89,7 +90,6 @@ class MainApp(QMainWindow, ui):
         self.pushButton_9.clicked.connect(self.Search_book)
         self.pushButton_8.clicked.connect(self.Edit_book)
         self.pushButton_10.clicked.connect(self.Delete_book)
-
 
         # DATABASE OPERATIONS
 
@@ -124,7 +124,7 @@ class MainApp(QMainWindow, ui):
 
         self.pushButton_6.clicked.connect(self.Handle_day_to_day_operation)
 
-    #Clients
+    # Clients
 
     def Add_new_client(self):
         client_name = self.lineEdit_22.text()
@@ -143,7 +143,6 @@ class MainApp(QMainWindow, ui):
         self.lineEdit_22.setText('')
         self.lineEdit_23.setText('')
         self.lineEdit_24.setText('')
-
 
     def Show_all_clients(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
@@ -192,7 +191,6 @@ class MainApp(QMainWindow, ui):
         self.lineEdit_26.setText(data[3])
         # No need to update clients details in client search.
 
-
     def Edit_clients(self):
 
         client_original_national_id = self.lineEdit_25.text()
@@ -212,15 +210,13 @@ class MainApp(QMainWindow, ui):
         self.statusBar().showMessage("Client details updated successfully.")
         self.Show_all_clients()
 
-
-
     def Delete_clients(self):
         client_original_national_id = self.lineEdit_25.text()
 
-        warning_message = QMessageBox.warning(self, 'Delete client', 'Are you sure you want to delete this client?', QMessageBox.Yes | QMessageBox.No)
+        warning_message = QMessageBox.warning(self, 'Delete client', 'Are you sure you want to delete this client?',
+                                              QMessageBox.Yes | QMessageBox.No)
 
         if warning_message == QMessageBox.Yes:
-
             self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
             self.cur = self.db.cursor()
 
@@ -231,8 +227,6 @@ class MainApp(QMainWindow, ui):
             self.db.close()
             self.statusBar().showMessage("Client deleted successfully.")
             self.Show_all_clients()
-
-
 
     # exporting data to excel files.
     def Export_day_to_day_operations(self):
@@ -262,14 +256,64 @@ class MainApp(QMainWindow, ui):
             row_number += 1
 
         wb.close()
-        self.statusBar().showMessage('Report Created Successfully')
+        self.statusBar().showMessage("Day to day operation's exported Successfully")
 
     def Export_books(self):
-        pass
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        self.cur.execute(
+            ''' SELECT book_code, book_name, book_description, book_category, book_author, book_publisher, book_price FROM book '''
+        )
+
+        data = self.cur.fetchall()
+
+        wb = Workbook('all_books.xlsx')
+        sheet1 = wb.add_worksheet()
+
+        sheet1.write(0, 0, 'Book Code')
+        sheet1.write(0, 1, 'Book Name')
+        sheet1.write(0, 2, 'Book Description')
+        sheet1.write(0, 3, 'Book Category')
+        sheet1.write(0, 4, 'Book Author')
+        sheet1.write(0, 5, 'Book publisher')
+        sheet1.write(0, 6, 'Book Price')
+
+        row_number = 1
+        for row in data:
+            column_number = 0
+            for item in row:
+                sheet1.write(row_number, column_number, str(item))
+                column_number += 1
+            row_number += 1
+
+        wb.close()
+        self.statusBar().showMessage("Book's report exported successfully")
 
     def Export_clients(self):
-        pass
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
 
+        self.cur.execute(''' SELECT client_name, client_email, client_nationalid FROM clients ''')
+        data = self.cur.fetchall()
+
+        wb = Workbook('all_CLients.xlsx')
+        sheet1 = wb.add_worksheet()
+
+        sheet1.write(0, 0, 'Client Name')
+        sheet1.write(0, 1, 'CLient Email')
+        sheet1.write(0, 2, 'CLient NationalID')
+
+        row_number = 1
+        for row in data:
+            column_number = 0
+            for item in row:
+                sheet1.write(row_number, column_number, str(item))
+                column_number += 1
+            row_number += 1
+
+        wb.close()
+        self.statusBar().showMessage("CLient's report exported successfully")
 
     # Themes
 
@@ -293,16 +337,13 @@ class MainApp(QMainWindow, ui):
         styles = styles.read()
         self.setStyleSheet(styles)
 
-
     def Show_Themes(self):
         self.groupBox_3.show()
 
     def Hiding_Themes(self):
         self.groupBox_3.hide()
 
-
-    #Opening Tabs
-
+    # Opening Tabs
 
     def Open_day_to_day_tabs(self):
         self.tabWidget.setCurrentIndex(0)
@@ -313,13 +354,11 @@ class MainApp(QMainWindow, ui):
     def Open_clients_tab(self):
         self.tabWidget.setCurrentIndex(2)
 
-
     def Open_users_tab(self):
         self.tabWidget.setCurrentIndex(3)
 
     def Open_settings_tab(self):
         self.tabWidget.setCurrentIndex(4)
-
 
     ## Day to day operation
 
@@ -346,7 +385,6 @@ class MainApp(QMainWindow, ui):
         self.statusBar().showMessage('New Operation Added')
         self.Show_all_operations()
 
-
     def Show_all_operations(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
         self.cur = self.db.cursor()
@@ -364,12 +402,10 @@ class MainApp(QMainWindow, ui):
             row_position = self.tableWidget.rowCount()
             self.tableWidget.insertRow(row_position)
 
-
-    #Books @ DB
-
+    # Books @ DB
 
     def Add_new_book(self):
-        self.db = pymysql.connect(host = 'localhost', user = 'root' , password = '1234' , db = 'library')
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
         self.cur = self.db.cursor()
 
         book_title = self.lineEdit_2.text()
@@ -396,13 +432,12 @@ class MainApp(QMainWindow, ui):
         self.comboBox_5.setCurrentText('')
         self.Show_all_books()
 
-
-
     def Show_all_books(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
         self.cur = self.db.cursor()
 
-        self.cur.execute(''' SELECT book_code, book_name, book_description, book_category, book_author, book_publisher, book_price FROM book ''')
+        self.cur.execute(
+            ''' SELECT book_code, book_name, book_description, book_category, book_author, book_publisher, book_price FROM book ''')
         data = self.cur.fetchall()
 
         self.tableWidget_5.setRowCount(0)
@@ -418,7 +453,6 @@ class MainApp(QMainWindow, ui):
                 self.tableWidget_5.insertRow(row_position)
 
         self.db.close()
-
 
     def Search_book(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
@@ -439,7 +473,6 @@ class MainApp(QMainWindow, ui):
         self.lineEdit_6.setText(str(data[7]))
         # no need to update book sin database in search
 
-
     def Edit_book(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
         self.cur = self.db.cursor()
@@ -456,13 +489,11 @@ class MainApp(QMainWindow, ui):
 
         self.cur.execute('''
         UPDATE book SET book_name = %s, book_description = %s, book_code = %s, book_category = %s, book_author = %s, book_publisher = %s, book_price = %s WHERE book_name = %s 
-        ''', (book_title, book_description, book_code, book_category, book_author, book_publisher, book_price, search_book_title))
+        ''', (book_title, book_description, book_code, book_category, book_author, book_publisher, book_price,
+              search_book_title))
         self.db.commit()
         self.statusBar().showMessage("Book information updated successfully")
         self.Show_all_books()
-
-
-
 
     def Delete_book(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
@@ -470,18 +501,16 @@ class MainApp(QMainWindow, ui):
 
         book_title = self.lineEdit_7.text()
 
-        warning = QMessageBox.warning(self, 'Delete book', 'Are you sure you want to delete this book?', QMessageBox.Yes | QMessageBox.No)
+        warning = QMessageBox.warning(self, 'Delete book', 'Are you sure you want to delete this book?',
+                                      QMessageBox.Yes | QMessageBox.No)
         if warning == QMessageBox.Yes:
             sql = ''' DELETE FROM book WHERE book_name = %s '''
-            self.cur.execute(sql , [(book_title)])
+            self.cur.execute(sql, [(book_title)])
             self.db.commit()
             self.statusBar().showMessage("Book deleted successfully")
             self.Show_all_books()
 
-
-
     # Users @ DB
-
 
     def Add_new_user(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
@@ -529,10 +558,6 @@ class MainApp(QMainWindow, ui):
                 self.lineEdit_17.setText(row[2])
                 self.lineEdit_15.setText(row[3])
 
-
-
-
-
     def Edit_users(self):
         username = self.lineEdit_18.text()
         email = self.lineEdit_17.text()
@@ -555,8 +580,7 @@ class MainApp(QMainWindow, ui):
         else:
             self.label_31.setText("Password doesn't match.")
 
-
-    #Settings @ DB
+    # Settings @ DB
 
     def Add_category(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
@@ -570,12 +594,11 @@ class MainApp(QMainWindow, ui):
 
         self.db.commit()
         self.statusBar().showMessage('New Category Added')
-        #Deleting box text after button clicking
+        # Deleting box text after button clicking
         self.lineEdit_19.setText('')
         # Updating categories after button clicked i.e. After adding item
         self.Show_category()
         self.Show_category_combobox()
-
 
     def Show_category(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
@@ -588,11 +611,10 @@ class MainApp(QMainWindow, ui):
             for row, form in enumerate(category_data):
                 for column, item in enumerate(form):
                     self.tableWidget_2.setItem(row, column, QTableWidgetItem(str(item)))
-                    column +=1
+                    column += 1
 
                 row_position = self.tableWidget_2.rowCount()
                 self.tableWidget_2.insertRow(row_position)
-
 
     def Add_author(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
@@ -610,7 +632,6 @@ class MainApp(QMainWindow, ui):
         self.Show_author()
         self.Show_author_combobox()
 
-
     def Show_author(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
         self.cur = self.db.cursor()
@@ -626,7 +647,6 @@ class MainApp(QMainWindow, ui):
 
                 row_position = self.tableWidget_3.rowCount()
                 self.tableWidget_3.insertRow(row_position)
-
 
     def Add_publisher(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
@@ -674,10 +694,6 @@ class MainApp(QMainWindow, ui):
             self.comboBox_3.addItem(category[0])
             self.comboBox_8.addItem(category[0])
 
-
-
-
-
     def Show_author_combobox(self):
         self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
         self.cur = self.db.cursor()
@@ -701,9 +717,6 @@ class MainApp(QMainWindow, ui):
         for publisher in data:
             self.comboBox_5.addItem(publisher[0])
             self.comboBox_7.addItem(publisher[0])
-
-
-
 
 
 def main():
