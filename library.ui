@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1017</width>
-    <height>492</height>
+    <height>509</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -148,7 +148,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -158,9 +158,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>100</y>
+        <y>90</y>
         <width>901</width>
-        <height>331</height>
+        <height>281</height>
        </rect>
       </property>
       <column>
@@ -334,6 +334,19 @@
        <string>Enter Client title</string>
       </property>
      </widget>
+     <widget class="QPushButton" name="pushButton_29">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>380</y>
+        <width>191</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Export to excel file</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -358,10 +371,10 @@
        <widget class="QTableWidget" name="tableWidget_5">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>0</x>
           <y>0</y>
           <width>901</width>
-          <height>401</height>
+          <height>361</height>
          </rect>
         </property>
         <column>
@@ -799,6 +812,19 @@
        </widget>
       </widget>
      </widget>
+     <widget class="QPushButton" name="pushButton_30">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>390</y>
+        <width>191</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Export to excel file</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_10">
      <attribute name="title">
@@ -826,7 +852,7 @@
           <x>0</x>
           <y>0</y>
           <width>1011</width>
-          <height>421</height>
+          <height>351</height>
          </rect>
         </property>
         <column>
@@ -856,6 +882,19 @@
         </property>
         <property name="text">
          <string>Export Clients To Excel File</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_27">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>360</y>
+          <width>191</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Export to excel file</string>
         </property>
        </widget>
       </widget>

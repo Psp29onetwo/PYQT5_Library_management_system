@@ -1,13 +1,47 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-import sys, datetime
+import sys, datetime, xlwt
 import pymysql
 pymysql.install_as_MySQLdb()
 
 from PyQt5.uic import loadUiType
 
 ui, _ =  loadUiType('library.ui')
+login,_ = loadUiType('login.ui')
+
+
+
+class Login(QWidget , login):
+    def __init__(self):
+        QWidget.__init__(self)
+        self.setupUi(self)
+        self.pushButton.clicked.connect(self.Handel_Login)
+        # style = open('themes/darkorange.css' , 'r')
+        # style = style.read()
+        # self.setStyleSheet(style)
+
+    def Handel_Login(self):
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
+
+        username = self.lineEdit.text()
+        password = self.lineEdit_2.text()
+
+        sql = ''' SELECT * FROM users'''
+
+        self.cur.execute(sql)
+        data = self.cur.fetchall()
+        for row in data  :
+            if username == row[1] and password == row[3]:
+                print('user match')
+                self.window2 = MainApp()
+                self.close()
+                self.window2.show()
+
+            else:
+                self.label.setText('Make sure you entered correct username and password.')
+
 
 
 class MainApp(QMainWindow, ui):
@@ -82,6 +116,9 @@ class MainApp(QMainWindow, ui):
         self.pushButton_24.clicked.connect(self.Search_clients)
         self.pushButton_23.clicked.connect(self.Edit_clients)
         self.pushButton_25.clicked.connect(self.Delete_clients)
+        self.pushButton_29.clicked.connect(self.Export_day_to_day_operations)
+        self.pushButton_30.clicked.connect(self.Export_books)
+        self.pushButton_27.clicked.connect(self.Export_clients)
 
         ## DAY TO DAY OPERATION
 
@@ -197,7 +234,41 @@ class MainApp(QMainWindow, ui):
 
 
 
+    # exporting data to excel files.
+    def Export_day_to_day_operations(self):
+        self.db = pymysql.connect(host='localhost', user='root', password='1234', db='library')
+        self.cur = self.db.cursor()
 
+        self.cur.execute(''' 
+                    SELECT book_name , client , type , date , to_date FROM dayoperations
+                ''')
+
+        data = self.cur.fetchall()
+        wb = Workbook('day_operations.xlsx')
+        sheet1 = wb.add_worksheet()
+
+        sheet1.write(0, 0, 'book title')
+        sheet1.write(0, 1, 'client name')
+        sheet1.write(0, 2, 'type')
+        sheet1.write(0, 3, 'from - date')
+        sheet1.write(0, 4, 'to - date')
+
+        row_number = 1
+        for row in data:
+            column_number = 0
+            for item in row:
+                sheet1.write(row_number, column_number, str(item))
+                column_number += 1
+            row_number += 1
+
+        wb.close()
+        self.statusBar().showMessage('Report Created Successfully')
+
+    def Export_books(self):
+        pass
+
+    def Export_clients(self):
+        pass
 
 
     # Themes
@@ -637,7 +708,7 @@ class MainApp(QMainWindow, ui):
 
 def main():
     app = QApplication(sys.argv)
-    window = MainApp()
+    window = Login()
     window.show()
     app.exec_()
 
